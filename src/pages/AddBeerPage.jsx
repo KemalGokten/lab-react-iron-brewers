@@ -1,5 +1,10 @@
 import { useState } from "react";
 
+
+import { useNavigate } from "react-router-dom";
+
+
+
 function AddBeerPage() {
   // State variables to store the values of the form inputs. You can leave these as they are.
   const [name, setName] = useState("");
@@ -21,6 +26,7 @@ function AddBeerPage() {
   const handleAttenuationLevel = (e) => setAttenuationLevel(e.target.value);
   const handleContributedBy = (e) => setContributedBy(e.target.value);
 
+  const navigate = useNavigate();
 
 
   // TASK:
@@ -28,13 +34,49 @@ function AddBeerPage() {
   // 2. Use axios to make a POST request to the Beers API.
   // 3. Once the beer is created, navigate the user to the page showing the list of all beers.
 
+  const onAdd = (event) => {
+    event.preventDefault();
+    addNewBear();
+  
+  }
 
+  const addNewBear = async() => {
+    const payLoad = {
+      name:name,
+      tagline:tagline,
+      description:description,
+      image_url: imageUrl,
+      first_brewed:firstBrewed,
+      brewers_tips: brewersTips,
+      attenuation_level: parseInt(attenuationLevel),
+      contributed_by:contributedBy
+    }
+
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payLoad)
+  };
+
+    try{
+      const response = await fetch("https://ih-beers-api2.herokuapp.com/beers/new", requestOptions);
+      if(response.status===200){
+        navigate("/");
+      }
+      else{
+        console.log("Response status is not 200");
+      }
+    }
+    catch(error){
+      console.log(error,"catch error");
+    }
+  }
 
   // Structure and the content of the page showing the form for adding a new beer. You can leave this as it is.
   return (
     <>
       <div className="d-inline-flex flex-column w-100 p-4">
-        <form>
+        <form onSubmit={onAdd}>
           <label>Name</label>
           <input
             className="form-control mb-4"
@@ -42,6 +84,7 @@ function AddBeerPage() {
             name="name"
             placeholder="Beer Name"
             value={name}
+            required
             onChange={handleName}
           />
           <label>Tagline</label>
@@ -51,6 +94,7 @@ function AddBeerPage() {
             name="tagline"
             placeholder="Beer Tagline"
             value={tagline}
+            required
             onChange={handleTagline}
           />
 
@@ -62,6 +106,7 @@ function AddBeerPage() {
             placeholder="Description"
             rows="3"
             value={description}
+            required
             onChange={handleDescription}
           ></textarea>
 
@@ -72,6 +117,7 @@ function AddBeerPage() {
             name="imageUrl"
             placeholder="Image URL"
             value={imageUrl}
+            required
             onChange={handleImageUrl}
           />
 
@@ -82,6 +128,7 @@ function AddBeerPage() {
             name="firstBrewed"
             placeholder="Date - MM/YYYY"
             value={firstBrewed}
+            required
             onChange={handleFirstBrewed}
           />
 
@@ -92,6 +139,7 @@ function AddBeerPage() {
             name="brewersTips"
             placeholder="..."
             value={brewersTips}
+            required
             onChange={handleBrewersTips}
           />
 
@@ -107,6 +155,7 @@ function AddBeerPage() {
               type="number"
               name="attenuationLevel"
               value={attenuationLevel}
+              required
               onChange={handleAttenuationLevel}
               min={0}
               max={100}
@@ -120,9 +169,10 @@ function AddBeerPage() {
             name="contributedBy"
             placeholder="Contributed by"
             value={contributedBy}
+            required
             onChange={handleContributedBy}
           />
-          <button className="btn btn-primary btn-round">Add Beer</button>
+          <button type="submit" className="btn btn-primary btn-round">Add Beer</button>
         </form>
       </div>
     </>
